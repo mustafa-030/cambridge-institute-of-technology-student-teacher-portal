@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Edit Marks — {{ subject.name }}{% endblock %}
+{% block page_title %}Edit Marks{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>📊 {{ subject.code }} – {{ subject.name }} <span style="font-size:14px; font-weight:400; color:var(--gray-400);">(Sem {{ sem }})</span></h2>
+  <a href="{{ url_for('teacher.marks', sem=sem) }}" class="btn btn-outline">← Back</a>
+</div>
+
+<div class="card">
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div style="display:flex; gap:16px; align-items:flex-end; margin-bottom:20px; flex-wrap:wrap; background:var(--blue-50); border-radius:10px; padding:16px;">
+      <div class="form-group" style="margin:0; min-width:180px;">
+        <label class="form-label">Exam Type</label>
+        <select name="exam_type" id="examTypeSelect" class="form-control">
+          <option value="internal1">Internal 1</option>
+          <option value="internal2">Internal 2</option>
+          <option value="final">Final Exam</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0; min-width:120px;">
+        <label class="form-label">Max Marks</label>
+        <input type="number" name="max_marks" value="100" class="form-control" min="1" max="200">
+      </div>
+      <button type="submit" class="btn btn-primary">💾 Save All Marks</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>USN</th>
+            <th>Student Name</th>
+            <th>Marks Obtained</th>
+            <th>Saved Mark</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in students %}
+          {% set saved = existing_marks.get((student.id, 'internal1')) %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ student.usn }}</td>
+            <td>{{ student.user.name }}</td>
+            <td>
+              <input type="number" name="marks_{{ student.id }}"
+                     id="inp_{{ student.id }}"
+                     class="form-control" style="width:90px;" min="0" max="200" step="0.5"
+                     placeholder="—">
+            </td>
+            <td>
+              <!-- Show existing marks across exam types for this student & subject -->
+              {% set m_i1 = existing_marks.get((student.id, 'internal1')) %}
+              {% set m_i2 = existing_marks.get((student.id, 'internal2')) %}
+              {% set m_f  = existing_marks.get((student.id, 'final')) %}
+              <div style="font-size:12px; color:var(--gray-400);">
+                {% if m_i1 is not none %}I1: <strong>{{ m_i1 }}</strong> {% endif %}
+                {% if m_i2 is not none %}I2: <strong>{{ m_i2 }}</strong> {% endif %}
+                {% if m_f  is not none %}Final: <strong>{{ m_f }}</strong> {% endif %}
+                {% if m_i1 is none and m_i2 is none and m_f is none %}—{% endif %}
+              </div>
+            </td>
+            <td>
+              <!-- Delete buttons for each saved entry -->
+              {% for et_label, et_key in [('I1','internal1'),('I2','internal2'),('F','final')] %}
+                {% set mk = namespace(obj=none) %}
+                {% for m in all_marks if m.student_id == student.id and m.exam_type == et_key %}
+                  {% set mk.obj = m %}
+                {% endfor %}
+                {% if mk.obj %}
+                <form method="POST" action="{{ url_for('teacher.delete_mark', mark_id=mk.obj.id) }}" style="display:inline;">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-danger btn-sm" style="padding:3px 8px; font-size:11px;"
+                          data-confirm="Delete {{ et_label }} mark for {{ student.user.name }}?">✕{{ et_label }}</button>
+                </form>
+                {% endif %}
+              {% endfor %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" style="text-align:center; color:var(--gray-400); padding:24px;">No students enrolled in this semester for this department.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </form>
+</div>
+
+<script>
+// When exam type changes, prefill the inputs with existing marks for that type
+const marksByStudent = {{ existing_marks_json | tojson }};
+document.getElementById('examTypeSelect').addEventListener('change', function() {
+  const et = this.value;
+  document.querySelectorAll('[id^="inp_"]').forEach(inp => {
+    const sid = inp.id.replace('inp_', '');
+    const key = sid + '_' + et;
+    inp.value = marksByStudent[key] !== undefined ? marksByStudent[key] : '';
+  });
+});
+</script>
+{% endblock %}

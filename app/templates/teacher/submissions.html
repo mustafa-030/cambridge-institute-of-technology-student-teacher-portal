@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Submissions{% endblock %}
+{% block page_title %}Submissions{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>📥 Submissions — {{ assignment.title }}</h2>
+  <a href="{{ url_for('teacher.assignments') }}" class="btn btn-outline">← Back</a>
+</div>
+
+{% if assignment.attachment %}
+<div class="alert alert-info" style="margin-bottom:20px;">
+  📎 Your resource: <a href="{{ assignment.attachment }}" target="_blank" style="font-weight:600;">Open on Google Drive</a>
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Student Submissions</span>
+    <span class="badge badge-blue">{{ submissions|length }} submitted</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Student</th><th>USN</th><th>Submitted</th><th>Notes</th><th>File</th><th>Grade</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        {% for sub in submissions %}
+        <tr>
+          <td><strong>{{ sub.student.user.name }}</strong></td>
+          <td>{{ sub.student.usn }}</td>
+          <td style="font-size:12px; color:var(--gray-400);">
+            {{ sub.submitted_at.strftime('%d %b, %I:%M %p') if sub.submitted_at else '—' }}
+          </td>
+          <td style="max-width:180px; font-size:12.5px;">
+            {{ sub.content[:80] if sub.content else '—' }}{% if sub.content and sub.content|length > 80 %}…{% endif %}
+          </td>
+          <td>
+            {% if sub.file_url %}
+            <a href="{{ sub.file_url }}" target="_blank" class="btn btn-outline btn-sm">🔗 Open</a>
+            {% else %}<span style="color:var(--gray-400); font-size:12px;">No file</span>{% endif %}
+          </td>
+          <td>
+            {% if sub.grade %}<span class="badge badge-green">{{ sub.grade }}</span>
+            {% else %}<span class="badge badge-yellow">Pending</span>{% endif %}
+          </td>
+          <td>
+            <form method="POST" action="{{ url_for('teacher.grade_submission', assignment_id=assignment.id, sub_id=sub.id) }}"
+                  style="display:flex; gap:6px; align-items:center;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="text" name="grade" placeholder="A/B…" value="{{ sub.grade or '' }}"
+                     class="form-control" style="width:55px; padding:4px 8px; font-size:12px;">
+              <input type="text" name="feedback" placeholder="Feedback" value="{{ sub.feedback or '' }}"
+                     class="form-control" style="width:120px; padding:4px 8px; font-size:12px;">
+              <button class="btn btn-success btn-sm">✓</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" style="text-align:center; color:var(--gray-400); padding:24px;">No submissions yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Departments{% endblock %}
+{% block page_title %}Departments{% endblock %}
+{% block content %}
+<div class="page-header"><h2>🏫 Departments</h2></div>
+
+<div style="display:grid; grid-template-columns:320px 1fr; gap:20px; align-items:start;">
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px;">Add Department</div>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      <div class="form-group">
+        {{ form.name.label(class='form-label') }}
+        {{ form.name(class='form-control', placeholder='Computer Science') }}
+      </div>
+      <div class="form-group">
+        {{ form.code.label(class='form-label') }}
+        {{ form.code(class='form-control', placeholder='CS') }}
+      </div>
+      {{ form.submit(class='btn btn-primary') }}
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px;">All Departments</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Code</th><th>Name</th><th>Students</th><th>Teachers</th><th>Subjects</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for d in departments %}
+          <tr>
+            <td><strong>{{ d.code }}</strong></td>
+            <td>{{ d.name }}</td>
+            <td>{{ d.students.count() }}</td>
+            <td>{{ d.teachers.count() }}</td>
+            <td>{{ d.subjects.count() }}</td>
+            <td style="display:flex; gap:6px;">
+              <a href="{{ url_for('admin.edit_department', dept_id=d.id) }}" class="btn btn-outline btn-sm">✏️ Edit</a>
+              <form method="POST" action="{{ url_for('admin.delete_department', dept_id=d.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-danger btn-sm"
+                        data-confirm="Delete {{ d.name }}? This will affect all related data.">🗑</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" style="text-align:center; color:var(--gray-400);">No departments yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

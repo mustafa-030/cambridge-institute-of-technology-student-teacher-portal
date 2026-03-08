@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Notice Board{% endblock %}
+{% block page_title %}Notice Board{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>📋 Notice Board</h2>
+  {% if current_user.role != 'student' %}
+  <a href="{{ url_for('notices.post_notice') }}" class="btn btn-primary">+ Post Notice</a>
+  {% endif %}
+</div>
+
+{% if notices %}
+  {% for n in notices %}
+  <div class="notice-card {% if n.is_pinned %}pinned{% endif %}">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+      <div style="flex:1;">
+        <div class="notice-title">
+          {% if n.is_pinned %}📌 {% endif %}
+          <a href="{{ url_for('notices.view_notice', notice_id=n.id) }}"
+             style="color:inherit; text-decoration:none;">{{ n.title }}</a>
+        </div>
+        <div class="notice-meta">
+          By {{ n.author.name }} · {{ n.created_at.strftime('%d %b %Y, %H:%M') }} ·
+          <span class="badge badge-blue" style="font-size:10px;">{{ n.target_role | title }}</span>
+          {% for d in n.target_departments %}
+            <span class="badge badge-green" style="font-size:10px;">{{ d.code }}</span>
+          {% endfor %}
+        </div>
+        <div class="notice-body">{{ n.content[:250] }}{% if n.content | length > 250 %}…{% endif %}</div>
+      </div>
+
+      {% if current_user.id == n.author_id or current_user.role == 'admin' %}
+      <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0;">
+        <a href="{{ url_for('notices.edit_notice', notice_id=n.id) }}" class="btn btn-outline btn-sm">✏️ Edit</a>
+        <form method="POST" action="{{ url_for('notices.delete_notice', notice_id=n.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-danger btn-sm" data-confirm="Delete this notice?">🗑</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="card" style="text-align:center; padding:40px; color:var(--gray-400);">
+    No notices for your department yet.
+  </div>
+{% endif %}
+{% endblock %}

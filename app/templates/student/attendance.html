@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Attendance{% endblock %}
+{% block page_title %}My Attendance{% endblock %}
+
+{% block content %}
+<div class="page-header"><h2>📅 My Attendance</h2></div>
+
+<div class="sem-ribbon">
+  {% for s in semesters %}
+  <a href="{{ url_for('student.attendance', sem=s) }}"
+     class="sem-btn {% if s == active_sem %}active{% endif %}">Sem {{ s }}</a>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Semester {{ active_sem }} — Subject-wise Summary</span>
+  </div>
+  {% if summary %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Total Classes</th>
+          <th>Present</th>
+          <th>Absent</th>
+          <th>Attendance %</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in summary %}
+        {% set total = row.present + row.absent + row.late %}
+        {% set pct = ((row.present + row.late) / total * 100) | round(1) if total > 0 else 0 %}
+        <tr>
+          <td>{{ row.subject.code }} – {{ row.subject.name }}</td>
+          <td>{{ total }}</td>
+          <td class="att-present">{{ row.present }}</td>
+          <td class="att-absent">{{ row.absent }}</td>
+          <td>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="background:var(--gray-100); border-radius:4px; height:8px; width:80px; overflow:hidden;">
+                <div style="background:{% if pct>=75 %}var(--green){% else %}var(--red){% endif %};
+                            height:100%; width:{{ pct }}%;"></div>
+              </div>
+              {{ pct }}%
+            </div>
+          </td>
+          <td>
+            {% if pct >= 75 %}
+              <span class="badge badge-green">✓ OK</span>
+            {% else %}
+              <span class="badge badge-red">⚠ Low</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p style="color:var(--gray-400); padding:20px; text-align:center;">No attendance records for Semester {{ active_sem }}.</p>
+  {% endif %}
+</div>
+{% endblock %}

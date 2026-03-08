@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Exam Registration{% endblock %}
+{% block page_title %}Exam Registration{% endblock %}
+{% block content %}
+<div class="page-header"><h2>✏️ Exam Registration</h2></div>
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Registered Courses — Sem {{ student.current_sem }}</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Subject Code</th><th>Subject</th><th>Exam Status</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for cr in registered_subjects %}
+        <tr>
+          <td>{{ cr.subject.code }}</td>
+          <td>{{ cr.subject.name }}</td>
+          <td>
+            {% if cr.subject_id in exam_registered_ids %}
+              <span class="badge badge-green">Applied</span>
+            {% else %}
+              <span class="badge badge-yellow">Pending</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if cr.subject_id not in exam_registered_ids %}
+            <form method="POST">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="subject_id" value="{{ cr.subject_id }}">
+              <button type="submit" class="btn btn-primary btn-sm">Apply for Exam</button>
+            </form>
+            {% else %}
+              <span style="color:var(--gray-400); font-size:12px;">Already applied</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" style="text-align:center; color:var(--gray-400);">No courses registered yet. <a href="{{ url_for('student.course_registration') }}">Register courses first.</a></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

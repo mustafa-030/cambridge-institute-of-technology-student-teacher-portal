@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Teacher Roster{% endblock %}
+{% block page_title %}Teacher Roster{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>👩‍🏫 Department Teacher Roster</h2>
+</div>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Employee ID</th><th>Name</th><th>Email</th><th>Designation</th><th>Role</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for tp in teacher_profiles %}
+        <tr>
+          <td>{{ tp.employee_id }}</td>
+          <td>{{ tp.user.name }}</td>
+          <td>{{ tp.user.email }}</td>
+          <td>{{ tp.designation or '—' }}</td>
+          <td>
+            <span class="badge {% if tp.user.role == 'hod' %}badge-yellow{% else %}badge-green{% endif %}">
+              {{ tp.user.role | upper }}
+            </span>
+          </td>
+          <td>
+            <a href="{{ url_for('hod.edit_teacher', teacher_id=tp.id) }}" class="btn btn-outline btn-sm">Edit Role</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" style="text-align:center; color:var(--gray-400);">No teachers in this department.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

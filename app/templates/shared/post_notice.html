@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Post Notice{% endblock %}
+{% block page_title %}Post Notice{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>📢 Post a Notice</h2>
+  <a href="{{ url_for('notices.index') }}" class="btn btn-outline">← Notice Board</a>
+</div>
+
+<div class="card" style="max-width:620px;">
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      {{ form.title(class='form-control', placeholder='Notice title') }}
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Send To</label>
+      {{ form.target_role(class='form-control', id='targetRoleSelect') }}
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Department Scope</label>
+      <select name="dept_scope" id="deptScopeSelect" class="form-control" onchange="toggleDeptCheckboxes()">
+        <option value="all">All Departments</option>
+        <option value="specific">Specific Department(s)</option>
+      </select>
+    </div>
+
+    <div id="deptCheckboxes" style="display:none; margin-bottom:16px;">
+      <label class="form-label">Select Departments</label>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; background:var(--blue-50); border-radius:8px; padding:12px;">
+        {% for d in depts %}
+        <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;
+                      background:var(--white); border:1.5px solid var(--blue-200); border-radius:20px; padding:5px 12px;">
+          <input type="checkbox" name="department_ids" value="{{ d.id }}" style="accent-color:var(--blue-600);">
+          <span>{{ d.code }} – {{ d.name }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Content</label>
+      {{ form.content(class='form-control', rows=6, placeholder='Write your notice here…') }}
+    </div>
+
+    <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+      {{ form.is_pinned() }}
+      <label for="{{ form.is_pinned.id }}" style="font-size:13px; cursor:pointer; margin:0;">
+        📌 Pin this notice to the top
+      </label>
+    </div>
+
+    {{ form.submit(class='btn btn-primary') }}
+  </form>
+</div>
+
+<script>
+function toggleDeptCheckboxes() {
+  const scope = document.getElementById('deptScopeSelect').value;
+  document.getElementById('deptCheckboxes').style.display = scope === 'specific' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

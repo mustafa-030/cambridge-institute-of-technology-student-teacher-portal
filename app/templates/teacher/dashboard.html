@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Teacher Dashboard{% endblock %}
+{% block page_title %}Teacher Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>Welcome, {{ current_user.name }}! 👩‍🏫</h2>
+  <span class="badge {% if current_user.role == 'hod' %}badge-yellow{% else %}badge-green{% endif %}">
+    {{ current_user.role | upper }}
+  </span>
+</div>
+<div class="stats-row">
+  <div class="stat-card">
+    <span class="stat-label">My Subjects</span>
+    <span class="stat-value">{{ subjects | length }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Dept</span>
+    <span class="stat-value" style="font-size:16px;">{{ teacher.department.code if teacher.department else '—' }}</span>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title" style="margin-bottom:16px;">My Subjects</div>
+  {% if subjects %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Code</th><th>Subject</th><th>Semester</th><th>Credits</th></tr></thead>
+      <tbody>
+        {% for s in subjects %}
+        <tr>
+          <td>{{ s.code }}</td>
+          <td>{{ s.name }}</td>
+          <td>Sem {{ s.semester }}</td>
+          <td>{{ s.credits }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p style="color:var(--gray-400);">No subjects assigned yet. Contact your HOD.</p>
+  {% endif %}
+</div>
+<div class="card">
+  <div class="card-title" style="margin-bottom:14px;">⚡ Quick Actions</div>
+  <div style="display:flex; flex-wrap:wrap; gap:10px;">
+    <a href="{{ url_for('teacher.marks') }}" class="btn btn-outline">📊 Edit Marks</a>
+    <a href="{{ url_for('teacher.attendance') }}" class="btn btn-outline">📅 Mark Attendance</a>
+    <a href="{{ url_for('teacher.assignments') }}" class="btn btn-outline">📝 Assignments</a>
+    <a href="{{ url_for('notices.post_notice') }}" class="btn btn-outline">📢 Post Notice</a>
+    {% if current_user.role == 'hod' %}
+    <a href="{{ url_for('hod.dashboard') }}" class="btn btn-primary">🏛️ HOD Panel</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

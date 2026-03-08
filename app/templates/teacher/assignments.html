@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Assignments{% endblock %}
+{% block page_title %}Assignments{% endblock %}
+{% block content %}
+<div class="page-header"><h2>📝 Manage Assignments</h2></div>
+<div style="display:grid; grid-template-columns:400px 1fr; gap:20px; align-items:start;">
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px;">Post New Assignment</div>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      <div class="form-group">
+        {{ form.title.label(class='form-label') }}
+        {{ form.title(class='form-control', placeholder='Assignment title') }}
+      </div>
+      <div class="form-group">
+        {{ form.description.label(class='form-label') }}
+        {{ form.description(class='form-control', rows=3, placeholder='Instructions, details...') }}
+      </div>
+      <div class="form-group">
+        {{ form.subject_id.label(class='form-label') }}
+        {{ form.subject_id(class='form-control') }}
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="form-group">
+          {{ form.semester.label(class='form-label') }}
+          {{ form.semester(class='form-control') }}
+        </div>
+        <div class="form-group">
+          {{ form.due_date.label(class='form-label') }}
+          {{ form.due_date(class='form-control') }}
+        </div>
+      </div>
+      <div class="form-group">
+        {{ form.attachment.label(class='form-label') }}
+        {{ form.attachment(class='form-control', placeholder='https://drive.google.com/...') }}
+        <small style="color:var(--gray-400); font-size:11px;">Paste a Google Drive / OneDrive / Dropbox share link</small>
+      </div>
+      {{ form.submit(class='btn btn-primary', style='width:100%; justify-content:center;') }}
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px;">My Assignments</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Title</th><th>Subject</th><th>Due</th><th>Sem</th><th>File</th><th>Submissions</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for a in assignments %}
+          <tr>
+            <td>
+              <strong>{{ a.title }}</strong>
+              {% if a.description %}
+              <div style="font-size:11.5px; color:var(--gray-400); margin-top:2px;">{{ a.description[:60] }}{% if a.description|length > 60 %}…{% endif %}</div>
+              {% endif %}
+            </td>
+            <td>{{ a.subject.code }}</td>
+            <td>{{ a.due_date.strftime('%d %b') if a.due_date else '—' }}</td>
+            <td>Sem {{ a.semester }}</td>
+            <td>
+              {% if a.attachment %}
+              <a href="{{ a.attachment }}" target="_blank" class="btn btn-outline btn-sm">🔗 Open</a>
+              {% else %}<span style="color:var(--gray-400);">—</span>{% endif %}
+            </td>
+            <td>
+              <a href="{{ url_for('teacher.view_submissions', assignment_id=a.id) }}" class="btn btn-outline btn-sm">👁 {{ a.submissions.count() }}</a>
+            </td>
+            <td style="display:flex; gap:6px;">
+              <a href="{{ url_for('teacher.edit_assignment', assignment_id=a.id) }}" class="btn btn-outline btn-sm">✏️</a>
+              <form method="POST" action="{{ url_for('teacher.delete_assignment', assignment_id=a.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-danger btn-sm" data-confirm="Delete '{{ a.title }}'?">🗑</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" style="text-align:center; color:var(--gray-400); padding:24px;">No assignments posted yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

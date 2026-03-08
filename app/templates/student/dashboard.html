@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}My Dashboard{% endblock %}
+{% block page_title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>Welcome, {{ current_user.name }}! 👋</h2>
+  <a href="{{ url_for('student.edit_profile') }}" class="btn btn-outline">✏️ Edit Profile</a>
+</div>
+
+<!-- Profile card -->
+<div class="stats-row">
+  <div class="stat-card">
+    <span class="stat-label">USN</span>
+    <span class="stat-value" style="font-size:16px; letter-spacing:.04em;">{{ student.usn }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Department</span>
+    <span class="stat-value" style="font-size:15px;">{{ student.department.code if student.department else '—' }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Semester</span>
+    <span class="stat-value">{{ student.current_sem }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Batch</span>
+    <span class="stat-value" style="font-size:16px;">{{ student.batch_year or '—' }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Phone</span>
+    <span class="stat-value" style="font-size:14px;">{{ student.phone or '—' }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Gender</span>
+    <span class="stat-value" style="font-size:14px;">{{ student.gender | title if student.gender else '—' }}</span>
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+  <!-- Notices (dept-scoped) -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📋 Notices for {{ student.department.code if student.department else 'You' }}</span>
+      <a href="{{ url_for('notices.index') }}" class="btn btn-outline btn-sm">View All</a>
+    </div>
+    {% if notices %}
+      {% for n in notices %}
+      <div class="notice-card {% if n.is_pinned %}pinned{% endif %}">
+        <div class="notice-title">{% if n.is_pinned %}📌 {% endif %}
+          <a href="{{ url_for('notices.view_notice', notice_id=n.id) }}" style="color:inherit;text-decoration:none;">{{ n.title }}</a>
+        </div>
+        <div class="notice-meta">{{ n.author.name }} · {{ n.created_at.strftime('%d %b %Y') }}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p style="color:var(--gray-400); font-size:13px; padding:8px 0;">No notices for your department yet.</p>
+    {% endif %}
+  </div>
+
+  <!-- Assignments (dept-scoped) -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📝 Upcoming Assignments</span>
+      <a href="{{ url_for('student.assignments') }}" class="btn btn-outline btn-sm">View All</a>
+    </div>
+    {% if assignments %}
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Title</th><th>Subject</th><th>Due</th></tr></thead>
+          <tbody>
+            {% for a in assignments %}
+            <tr>
+              <td>{{ a.title }}</td>
+              <td>{{ a.subject.code }}</td>
+              <td>{{ a.due_date.strftime('%d %b') if a.due_date else '—' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p style="color:var(--gray-400); font-size:13px; padding:8px 0;">No assignments for Sem {{ student.current_sem }}.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Quick Links -->
+<div class="card">
+  <div class="card-title" style="margin-bottom:14px;">⚡ Quick Actions</div>
+  <div style="display:flex; flex-wrap:wrap; gap:10px;">
+    <a href="{{ url_for('student.course_registration') }}" class="btn btn-outline">📚 Register Courses</a>
+    <a href="{{ url_for('student.exam_registration') }}"   class="btn btn-outline">✏️ Exam Registration</a>
+    <a href="{{ url_for('student.fee_payment') }}"         class="btn btn-outline">💳 Pay Fees</a>
+    <a href="{{ url_for('student.marks') }}"               class="btn btn-outline">📊 View Marks</a>
+    <a href="{{ url_for('student.attendance') }}"          class="btn btn-outline">📅 Attendance</a>
+    <a href="{{ url_for('student.projects') }}"            class="btn btn-outline">🚀 Projects</a>
+    <a href="{{ url_for('student.edit_profile') }}"        class="btn btn-primary">✏️ Edit Profile</a>
+  </div>
+</div>
+{% endblock %}

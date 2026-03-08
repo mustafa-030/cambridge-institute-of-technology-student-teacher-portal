@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Subjects{% endblock %}
+{% block page_title %}Subjects{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>📖 Subjects
+    {% if viewing_dept %}<span class="badge badge-blue">{{ viewing_dept.name }}</span>{% endif %}
+  </h2>
+</div>
+
+{% include 'shared/branch_switcher.html' %}
+
+<div style="display:grid; grid-template-columns:360px 1fr; gap:20px; align-items:start;">
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px;">Add Subject</div>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      {% for field in form if field.widget.input_type != 'hidden' and field.name != 'submit' %}
+      <div class="form-group">
+        {{ field.label(class='form-label') }}
+        {{ field(class='form-control') }}
+      </div>
+      {% endfor %}
+      {{ form.submit(class='btn btn-primary') }}
+    </form>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px;">
+      {% if viewing_dept %}{{ viewing_dept.name }} Subjects{% else %}All Subjects{% endif %}
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Code</th><th>Subject</th><th>Dept</th><th>Sem</th><th>Credits</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for s in subjects %}
+          <tr>
+            <td>{{ s.code }}</td>
+            <td>{{ s.name }}</td>
+            <td>{{ s.department.code if s.department else '—' }}</td>
+            <td>{{ s.semester }}</td>
+            <td>{{ s.credits }}</td>
+            <td style="display:flex; gap:6px;">
+              <a href="{{ url_for('admin.edit_subject', subject_id=s.id) }}" class="btn btn-outline btn-sm">✏️</a>
+              <form method="POST" action="{{ url_for('admin.delete_subject', subject_id=s.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-danger btn-sm" data-confirm="Delete {{ s.name }}?">🗑</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" style="text-align:center; color:var(--gray-400); padding:20px;">No subjects found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

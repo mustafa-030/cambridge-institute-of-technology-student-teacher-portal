@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Login – ABC College Portal{% endblock %}
+
+{% block auth_content %}
+<div class="auth-logo">
+  <span class="logo-icon">🎓</span>
+  <span class="logo-name">ABC College Portal</span>
+</div>
+
+<div class="auth-card">
+  <h1>Welcome back</h1>
+  <p class="subtitle">Sign in to your student / staff account</p>
+
+  <form method="POST" action="{{ url_for('auth.login') }}">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+      {{ form.email.label(class='form-label') }}
+      {{ form.email(class='form-control', placeholder='you@abccollege.edu') }}
+    </div>
+    <div class="form-group">
+      {{ form.password.label(class='form-label') }}
+      {{ form.password(class='form-control', placeholder='••••••••') }}
+    </div>
+    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:8px;">
+      Sign In
+    </button>
+  </form>
+  <p style="text-align:center; margin-top:16px; font-size:13px; color:var(--gray-400);">
+    Don't have an account? <a href="{{ url_for('auth.register') }}" style="color:var(--blue-600); font-weight:600;">Register</a>
+  </p>
+</div>
+{% endblock %}

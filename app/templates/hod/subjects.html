@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Manage Subjects{% endblock %}
+{% block page_title %}Manage Subjects{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>📖 Subjects — {{ hod.department.name }}</h2>
+</div>
+
+<div style="display:grid; grid-template-columns:340px 1fr; gap:20px; align-items:start;">
+
+  <!-- Add form -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px;">Add New Subject</div>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      <div class="form-group">
+        {{ form.name.label(class='form-label') }}
+        {{ form.name(class='form-control', placeholder='e.g. Circuit Theory') }}
+        {% for e in form.name.errors %}<div style="color:var(--red);font-size:11.5px;">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="form-group">
+        {{ form.code.label(class='form-label') }}
+        {{ form.code(class='form-control', placeholder='e.g. EEE101') }}
+        {% for e in form.code.errors %}<div style="color:var(--red);font-size:11.5px;">{{ e }}</div>{% endfor %}
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="form-group">
+          {{ form.semester.label(class='form-label') }}
+          {{ form.semester(class='form-control') }}
+        </div>
+        <div class="form-group">
+          {{ form.credits.label(class='form-label') }}
+          {{ form.credits(class='form-control') }}
+        </div>
+      </div>
+      <!-- Hidden dept field -->
+      {{ form.department_id(style='display:none') }}
+      {{ form.submit(class='btn btn-primary') }}
+    </form>
+  </div>
+
+  <!-- Subject list -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">All Subjects</span>
+      <span class="badge badge-blue">{{ subjects | length }} subjects</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Code</th><th>Subject Name</th><th>Semester</th><th>Credits</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for s in subjects %}
+          <tr>
+            <td><strong>{{ s.code }}</strong></td>
+            <td>{{ s.name }}</td>
+            <td>Sem {{ s.semester }}</td>
+            <td>{{ s.credits }}</td>
+            <td style="display:flex; gap:6px;">
+              <a href="{{ url_for('hod.edit_subject', subject_id=s.id) }}" class="btn btn-outline btn-sm">✏️ Edit</a>
+              <form method="POST" action="{{ url_for('hod.delete_subject', subject_id=s.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-danger btn-sm" data-confirm="Delete {{ s.name }}?">🗑</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" style="text-align:center; color:var(--gray-400); padding:24px;">
+            No subjects yet. Add your first subject!
+          </td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

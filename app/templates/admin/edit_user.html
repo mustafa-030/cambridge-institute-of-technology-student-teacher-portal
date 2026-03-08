@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Edit User{% endblock %}
+{% block page_title %}Edit User{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>✏️ Edit: {{ user.name }}</h2>
+  <a href="{{ url_for('admin.users') }}" class="btn btn-outline">← Back</a>
+</div>
+<div class="card" style="max-width:480px;">
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input type="text" name="name" value="{{ user.name }}" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Email (read-only)</label>
+      <input type="text" value="{{ user.email }}" class="form-control" disabled>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Role</label>
+      <select name="role" class="form-control">
+        {% for r in ['student','teacher','hod','admin'] %}
+        <option value="{{ r }}" {% if user.role == r %}selected{% endif %}>{{ r | upper }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Department</label>
+      <select name="dept_id" class="form-control">
+        <option value="">— None —</option>
+        {% set current_dept_id = user.student_profile.department_id if user.student_profile else (user.teacher_profile.department_id if user.teacher_profile else none) %}
+        {% for d in all_depts %}
+        <option value="{{ d.id }}" {% if current_dept_id == d.id %}selected{% endif %}>{{ d.code }} – {{ d.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    {% if user.student_profile %}
+    <div class="form-group">
+      <label class="form-label">Current Semester</label>
+      <select name="current_sem" class="form-control">
+        {% for i in range(1,9) %}
+        <option value="{{ i }}" {% if user.student_profile.current_sem == i %}selected{% endif %}>Semester {{ i }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+
+    {% if user.teacher_profile %}
+    <div class="form-group">
+      <label class="form-label">Designation</label>
+      <input type="text" name="designation" value="{{ user.teacher_profile.designation or '' }}" class="form-control" placeholder="e.g. Assistant Professor">
+    </div>
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a href="{{ url_for('admin.users') }}" class="btn btn-outline" style="margin-left:8px;">Cancel</a>
+  </form>
+</div>
+{% endblock %}

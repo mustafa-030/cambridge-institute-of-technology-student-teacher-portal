@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Manage Users{% endblock %}
+{% block page_title %}User Management{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>👥 Users
+    {% if viewing_dept %}<span class="badge badge-blue">{{ viewing_dept.name }}</span>{% endif %}
+  </h2>
+</div>
+
+{% include 'shared/branch_switcher.html' %}
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Dept</th>
+          <th>Role</th>
+          <th>Active</th>
+          <th>Change Role</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        {% set dept = u.student_profile.department if u.student_profile else (u.teacher_profile.department if u.teacher_profile else none) %}
+        <tr>
+          <td>{{ u.name }}</td>
+          <td style="font-size:12px; color:var(--gray-400);">{{ u.email }}</td>
+          <td>{{ dept.code if dept else '—' }}</td>
+          <td>
+            <span class="badge role-{{ u.role }}" style="padding:3px 9px;">{{ u.role | upper }}</span>
+          </td>
+          <td>
+            <form method="POST" action="{{ url_for('admin.toggle_user', user_id=u.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="badge {% if u.is_active %}badge-green{% else %}badge-red{% endif %}"
+                      style="border:none; cursor:pointer; font-size:11px;">
+                {% if u.is_active %}Active{% else %}Inactive{% endif %}
+              </button>
+            </form>
+          </td>
+          <td>
+            <form method="POST" action="{{ url_for('admin.change_role', user_id=u.id) }}" style="display:flex; gap:4px;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <select name="role" class="form-control" style="width:105px; font-size:12px; padding:4px 6px;">
+                {% for r in ['student','teacher','hod','admin'] %}
+                <option value="{{ r }}" {% if u.role == r %}selected{% endif %}>{{ r | upper }}</option>
+                {% endfor %}
+              </select>
+              <button type="submit" class="btn btn-outline btn-sm">Set</button>
+            </form>
+          </td>
+          <td style="display:flex; gap:6px;">
+            <a href="{{ url_for('admin.edit_user', user_id=u.id) }}" class="btn btn-outline btn-sm">✏️ Edit</a>
+            <form method="POST" action="{{ url_for('admin.delete_user', user_id=u.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-danger btn-sm"
+                      data-confirm="Delete user {{ u.name }}? Cannot be undone.">🗑</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

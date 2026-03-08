@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Register — ABC College Portal{% endblock %}
+{% block auth_content %}
+<div class="auth-logo">
+  <span class="logo-icon">🎓</span>
+  <span class="logo-name">ABC College Portal</span>
+</div>
+
+<div class="auth-card" style="max-width:480px;">
+  <h1>Create Account</h1>
+  <p class="subtitle">Register as a student or teacher. Your department determines what you can see.</p>
+
+  <form method="POST" action="{{ url_for('auth.register') }}">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+      {{ form.name.label(class='form-label') }}
+      {{ form.name(class='form-control', placeholder='Your full name') }}
+      {% for e in form.name.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="form-group">
+      {{ form.email.label(class='form-label') }}
+      {{ form.email(class='form-control', placeholder='you@example.com') }}
+      {% for e in form.email.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="form-group">
+      {{ form.department_id.label(class='form-label') }}
+      {{ form.department_id(class='form-control', id='deptSelect') }}
+      <small style="color:var(--gray-400); font-size:11px;">
+        You will only see subjects, marks, and assignments from your chosen department.
+      </small>
+      {% for e in form.department_id.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="form-group">
+      {{ form.role.label(class='form-label') }}
+      {{ form.role(class='form-control', id='roleSelect', onchange='toggleRoleFields()') }}
+    </div>
+
+    <div id="student-fields">
+      <div class="form-group">
+        {{ form.usn.label(class='form-label') }}
+        {{ form.usn(class='form-control', placeholder='e.g. 1AB21CS001 (leave blank to auto-assign)') }}
+        {% for e in form.usn.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+    <div id="teacher-fields" style="display:none;">
+      <div class="form-group">
+        {{ form.employee_id.label(class='form-label') }}
+        {{ form.employee_id(class='form-control', placeholder='e.g. EMP0042 (leave blank to auto-assign)') }}
+        {% for e in form.employee_id.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="form-group">
+        {{ form.password.label(class='form-label') }}
+        {{ form.password(class='form-control', placeholder='Min 6 characters') }}
+        {% for e in form.password.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="form-group">
+        {{ form.confirm.label(class='form-label') }}
+        {{ form.confirm(class='form-control', placeholder='Repeat password') }}
+        {% for e in form.confirm.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:4px;">
+      Create Account
+    </button>
+  </form>
+
+  <p style="text-align:center; margin-top:16px; font-size:13px; color:var(--gray-400);">
+    Already have an account? <a href="{{ url_for('auth.login') }}" style="color:var(--blue-600); font-weight:600;">Login</a>
+  </p>
+</div>
+
+<style>
+.field-error { color: var(--red); font-size: 11.5px; margin-top: 4px; }
+</style>
+
+<script>
+function toggleRoleFields() {
+  const role = document.getElementById('roleSelect').value;
+  document.getElementById('student-fields').style.display = role === 'student' ? 'block' : 'none';
+  document.getElementById('teacher-fields').style.display = role !== 'student' ? 'block' : 'none';
+}
+toggleRoleFields();
+</script>
+{% endblock %}

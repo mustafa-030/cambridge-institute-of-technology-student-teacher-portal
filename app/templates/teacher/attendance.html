@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Attendance — Sem {{ active_sem }}{% endblock %}
+{% block page_title %}Attendance Management{% endblock %}
+{% block content %}
+<div class="page-header"><h2>📅 Attendance — Sem {{ active_sem }}</h2></div>
+<div class="sem-ribbon">
+  {% for s in semesters %}
+  <a href="{{ url_for('teacher.attendance', sem=s) }}"
+     class="sem-btn {% if s == active_sem %}active{% endif %}">Sem {{ s }}</a>
+  {% endfor %}
+</div>
+<div class="card">
+  {% if subjects %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Code</th><th>Subject</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for s in subjects %}
+        <tr>
+          <td>{{ s.code }}</td>
+          <td>{{ s.name }}</td>
+          <td><a href="{{ url_for('teacher.mark_attendance', sem=active_sem, subject_id=s.id) }}" class="btn btn-primary btn-sm">Mark Attendance</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p style="color:var(--gray-400);">No subjects for Semester {{ active_sem }}.</p>
+  {% endif %}
+</div>
+{% endblock %}

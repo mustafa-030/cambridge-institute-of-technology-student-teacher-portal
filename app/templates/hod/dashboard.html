@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}HOD Dashboard{% endblock %}
+{% block page_title %}HOD Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>🏛️ HOD Panel — {{ dept.name if dept else '' }}</h2>
+</div>
+<div class="stats-row">
+  <div class="stat-card">
+    <span class="stat-label">Teachers</span>
+    <span class="stat-value">{{ teacher_count }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Subjects</span>
+    <span class="stat-value">{{ subject_count }}</span>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title" style="margin-bottom:14px;">Quick Actions</div>
+  <div style="display:flex; flex-wrap:wrap; gap:10px;">
+    <a href="{{ url_for('hod.teachers') }}" class="btn btn-primary">👩‍🏫 Teacher Roster</a>
+    <a href="{{ url_for('hod.subject_assignments') }}" class="btn btn-outline">🔗 Assign Subjects</a>
+    <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-outline">📚 My Teaching</a>
+    <a href="{{ url_for('notices.post_notice') }}" class="btn btn-outline">📢 Post Notice</a>
+  </div>
+</div>
+{% endblock %}

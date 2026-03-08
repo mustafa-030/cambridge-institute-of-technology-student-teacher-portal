@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>⚙️ Admin Panel
+    {% if viewing_dept %}
+    <span class="badge badge-blue" style="font-size:13px; margin-left:8px;">{{ viewing_dept.name }}</span>
+    {% endif %}
+  </h2>
+</div>
+
+{% include 'shared/branch_switcher.html' %}
+
+<div class="stats-row">
+  <div class="stat-card">
+    <span class="stat-label">Total Users</span>
+    <span class="stat-value">{{ user_count }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Students</span>
+    <span class="stat-value">{{ student_count }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Teachers</span>
+    <span class="stat-value">{{ teacher_count }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Departments</span>
+    <span class="stat-value">{{ dept_count }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Subjects</span>
+    <span class="stat-value">{{ subject_count }}</span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title" style="margin-bottom:14px;">Quick Actions</div>
+  <div style="display:flex; flex-wrap:wrap; gap:10px;">
+    <a href="{{ url_for('admin.users') }}"         class="btn btn-primary">👥 Manage Users</a>
+    <a href="{{ url_for('admin.departments') }}"   class="btn btn-outline">🏫 Departments</a>
+    <a href="{{ url_for('admin.subjects') }}"      class="btn btn-outline">📖 Subjects</a>
+    <a href="{{ url_for('admin.marks') }}"         class="btn btn-outline">📊 Browse Marks</a>
+    <a href="{{ url_for('admin.notifications') }}" class="btn btn-outline">📢 Send Notification</a>
+    <a href="{{ url_for('notices.index') }}"       class="btn btn-outline">📋 Notice Board</a>
+  </div>
+</div>
+{% endblock %}

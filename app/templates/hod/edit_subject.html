@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Edit Subject{% endblock %}
+{% block page_title %}Edit Subject{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>✏️ Edit: {{ subject.code }}</h2>
+  <a href="{{ url_for('hod.subjects') }}" class="btn btn-outline">← Back</a>
+</div>
+<div class="card" style="max-width:440px;">
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+      {{ form.name.label(class='form-label') }}
+      {{ form.name(class='form-control') }}
+    </div>
+    <div class="form-group">
+      {{ form.code.label(class='form-label') }}
+      {{ form.code(class='form-control') }}
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="form-group">
+        {{ form.semester.label(class='form-label') }}
+        {{ form.semester(class='form-control') }}
+      </div>
+      <div class="form-group">
+        {{ form.credits.label(class='form-label') }}
+        {{ form.credits(class='form-control') }}
+      </div>
+    </div>
+    {{ form.department_id(style='display:none') }}
+    {{ form.submit(class='btn btn-primary') }}
+    <a href="{{ url_for('hod.subjects') }}" class="btn btn-outline" style="margin-left:8px;">Cancel</a>
+  </form>
+</div>
+{% endblock %}

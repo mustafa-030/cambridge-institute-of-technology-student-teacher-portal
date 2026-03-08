@@ -1,0 +1,48 @@
+<!-- course_registration.html -->
+{% extends 'base.html' %}
+{% block title %}Course Registration{% endblock %}
+{% block page_title %}Course Registration{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>📚 Course Registration — Sem {{ sem }}</h2>
+</div>
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Available Subjects</span>
+    <span class="badge badge-blue">{{ subjects | length }} subjects</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Code</th><th>Subject</th><th>Credits</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for subj in subjects %}
+        <tr>
+          <td>{{ subj.code }}</td>
+          <td>{{ subj.name }}</td>
+          <td>{{ subj.credits }}</td>
+          <td>
+            {% if subj.id in registered_ids %}
+              <span class="badge badge-green">Registered</span>
+            {% else %}
+              <span class="badge badge-yellow">Not Registered</span>
+            {% endif %}
+          </td>
+          <td>
+            <form method="POST">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="subject_id" value="{{ subj.id }}">
+              {% if subj.id in registered_ids %}
+                <button name="action" value="drop" class="btn btn-danger btn-sm"
+                        data-confirm="Drop this course?">Drop</button>
+              {% else %}
+                <button name="action" value="register" class="btn btn-primary btn-sm">Register</button>
+              {% endif %}
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

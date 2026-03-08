@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Submit Assignment{% endblock %}
+{% block page_title %}Submit Assignment{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>📤 {{ assignment.title }}</h2>
+  <a href="{{ url_for('student.assignments') }}" class="btn btn-outline">← Back</a>
+</div>
+
+<!-- Assignment Details -->
+<div class="card" style="border-left:4px solid var(--blue-400); margin-bottom:20px;">
+  <div style="display:flex; justify-content:space-between; align-items:start; flex-wrap:wrap; gap:12px;">
+    <div>
+      <div class="card-title">{{ assignment.subject.code }} — {{ assignment.subject.name }}</div>
+      {% if assignment.description %}
+      <div style="font-size:13.5px; color:var(--gray-700); margin-top:8px; line-height:1.6;">{{ assignment.description }}</div>
+      {% endif %}
+    </div>
+    {% if assignment.due_date %}
+    <div style="text-align:right; flex-shrink:0;">
+      <div style="font-size:11px; color:var(--gray-400);">DUE DATE</div>
+      <div style="font-weight:700; font-size:16px; color:var(--red);">{{ assignment.due_date.strftime('%d %b %Y') }}</div>
+    </div>
+    {% endif %}
+  </div>
+  {% if assignment.attachment %}
+  <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--gray-100);">
+    <span style="font-size:11px; font-weight:600; color:var(--gray-400); text-transform:uppercase; letter-spacing:.05em;">Teacher's Resource</span>
+    <div style="margin-top:8px;">
+      <a href="{{ assignment.attachment }}" target="_blank" class="btn btn-outline btn-sm">🔗 Open Teacher's File (Google Drive)</a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Submission -->
+<div class="card">
+  <div class="card-title" style="margin-bottom:16px;">
+    {% if existing %}✏️ Update Your Submission{% else %}📤 Submit Your Work{% endif %}
+  </div>
+
+  {% if existing %}
+  <div class="alert alert-success" style="margin-bottom:16px;">
+    ✅ Last submitted: {{ existing.submitted_at.strftime('%d %b %Y, %I:%M %p') if existing.submitted_at else 'N/A' }}
+    {% if existing.grade %} — Grade: <strong>{{ existing.grade }}</strong>{% endif %}
+    {% if existing.feedback %}<br><em>Feedback: {{ existing.feedback }}</em>{% endif %}
+  </div>
+  {% endif %}
+
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+      {{ form.content.label(class='form-label') }}
+      {{ form.content(class='form-control', rows=5, placeholder='Type your answer, notes, or explanation here...') }}
+    </div>
+    <div class="form-group">
+      {{ form.file_link.label(class='form-label') }}
+      {{ form.file_link(class='form-control', placeholder='https://drive.google.com/...') }}
+      <small style="color:var(--gray-400); font-size:11px;">
+        Upload your file to Google Drive, set sharing to "Anyone with the link", then paste the link here.
+      </small>
+      {% if existing and existing.file_url %}
+      <div style="margin-top:8px;">
+        <a href="{{ existing.file_url }}" target="_blank" class="btn btn-outline btn-sm">🔗 View My Submitted File</a>
+      </div>
+      {% endif %}
+    </div>
+    {{ form.submit(class='btn btn-primary', style='width:100%; justify-content:center;') }}
+  </form>
+</div>
+{% endblock %}

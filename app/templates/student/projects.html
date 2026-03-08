@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Projects & Internships{% endblock %}
+{% block page_title %}Projects / Internships{% endblock %}
+{% block content %}
+<div class="page-header"><h2>🚀 Projects & Internships</h2></div>
+<div style="display:grid; grid-template-columns:380px 1fr; gap:20px; align-items:start;">
+  <!-- Add form -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px;">Add New Entry</div>
+    <form method="POST" action="{{ url_for('student.projects') }}">
+      {{ form.hidden_tag() }}
+      {% for field in form if field.widget.input_type != 'hidden' and field.name != 'submit' %}
+      <div class="form-group">
+        {{ field.label(class='form-label') }}
+        {% if field.type == 'TextAreaField' %}
+          {{ field(class='form-control', rows=3) }}
+        {% else %}
+          {{ field(class='form-control') }}
+        {% endif %}
+      </div>
+      {% endfor %}
+      {{ form.submit(class='btn btn-primary') }}
+    </form>
+  </div>
+
+  <!-- Listing -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">My Directory</span>
+      <span class="badge badge-blue">{{ items | length }} entries</span>
+    </div>
+    {% for item in items %}
+    <div class="notice-card">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div style="flex:1;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">
+            <span style="font-weight:700; font-size:15px; color:var(--blue-800);">{{ item.title }}</span>
+            <span class="badge {% if item.type == 'project' %}badge-blue{% else %}badge-green{% endif %}">{{ item.type | title }}</span>
+            <span class="badge {% if item.status == 'completed' %}badge-green{% else %}badge-yellow{% endif %}">{{ item.status | title }}</span>
+          </div>
+          {% if item.company_org %}
+            <div style="font-size:12px; color:var(--gray-400);">🏢 {{ item.company_org }}</div>
+          {% endif %}
+          {% if item.description %}
+            <div class="notice-body" style="margin-top:6px;">{{ item.description }}</div>
+          {% endif %}
+          {% if item.start_date %}
+            <div style="font-size:12px; color:var(--gray-400); margin-top:4px;">
+              📅 {{ item.start_date.strftime('%d %b %Y') }}{% if item.end_date %} → {{ item.end_date.strftime('%d %b %Y') }}{% endif %}
+            </div>
+          {% endif %}
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px; margin-left:12px; flex-shrink:0;">
+          <a href="{{ url_for('student.edit_project', proj_id=item.id) }}" class="btn btn-outline btn-sm">✏️ Edit</a>
+          <form method="POST" action="{{ url_for('student.delete_project', proj_id=item.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-danger btn-sm" data-confirm="Delete this entry?">🗑 Delete</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <p style="color:var(--gray-400); padding:20px; text-align:center;">No entries yet. Add your first project or internship!</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

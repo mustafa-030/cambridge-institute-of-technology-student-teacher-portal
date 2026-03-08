@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Marks — Sem {{ active_sem }}{% endblock %}
+{% block page_title %}Marks Management{% endblock %}
+{% block content %}
+<div class="page-header"><h2>📊 Marks — Sem {{ active_sem }}</h2></div>
+<div class="sem-ribbon">
+  {% for s in semesters %}
+  <a href="{{ url_for('teacher.marks', sem=s) }}"
+     class="sem-btn {% if s == active_sem %}active{% endif %}">Sem {{ s }}</a>
+  {% endfor %}
+</div>
+<div class="card">
+  <div class="card-title" style="margin-bottom:16px;">My Subjects — Semester {{ active_sem }}</div>
+  {% if subjects %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Code</th><th>Subject</th><th>Credits</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for s in subjects %}
+        <tr>
+          <td>{{ s.code }}</td>
+          <td>{{ s.name }}</td>
+          <td>{{ s.credits }}</td>
+          <td>
+            <a href="{{ url_for('teacher.edit_marks', sem=active_sem, subject_id=s.id) }}"
+               class="btn btn-primary btn-sm">Edit Marks</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p style="color:var(--gray-400);">No subjects assigned for Semester {{ active_sem }}.</p>
+  {% endif %}
+</div>
+{% endblock %}

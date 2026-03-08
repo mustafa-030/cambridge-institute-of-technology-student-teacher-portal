@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Subject Assignments{% endblock %}
+{% block page_title %}Subject Assignments{% endblock %}
+{% block content %}
+<div class="page-header"><h2>🔗 Assign Subjects to Teachers</h2></div>
+<div style="display:grid; grid-template-columns:360px 1fr; gap:20px; align-items:start;">
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px;">New Assignment</div>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      {% for field in form if field.widget.input_type != 'hidden' and field.name != 'submit' %}
+      <div class="form-group">
+        {{ field.label(class='form-label') }}
+        {{ field(class='form-control') }}
+      </div>
+      {% endfor %}
+      {{ form.submit(class='btn btn-primary') }}
+    </form>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px;">Current Assignments</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Teacher</th><th>Subject</th><th>Year</th><th>Action</th></tr></thead>
+        <tbody>
+          {% for sa in all_assignments %}
+          <tr>
+            <td>{{ sa.teacher.user.name }}</td>
+            <td>{{ sa.subject.code }} – {{ sa.subject.name }}</td>
+            <td>{{ sa.academic_year or '—' }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('hod.delete_subject_assignment', sa_id=sa.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-danger btn-sm" data-confirm="Remove this assignment?">Remove</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" style="text-align:center; color:var(--gray-400);">No assignments yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

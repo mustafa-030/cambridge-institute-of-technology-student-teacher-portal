@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Edit Profile{% endblock %}
+{% block page_title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>✏️ Edit My Profile</h2>
+  <a href="{{ url_for('student.dashboard') }}" class="btn btn-outline">← Back to Dashboard</a>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;">
+  <div class="card">
+    <div class="card-title" style="margin-bottom:18px;">Personal Information</div>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+
+      <div class="form-group">
+        {{ form.name.label(class='form-label') }}
+        {{ form.name(class='form-control') }}
+      </div>
+      <div class="form-group">
+        {{ form.phone.label(class='form-label') }}
+        {{ form.phone(class='form-control', placeholder='Your phone number') }}
+      </div>
+      <div class="form-group">
+        {{ form.dob.label(class='form-label') }}
+        {{ form.dob(class='form-control') }}
+      </div>
+      <div class="form-group">
+        {{ form.gender.label(class='form-label') }}
+        {{ form.gender(class='form-control') }}
+      </div>
+      <div class="form-group">
+        {{ form.address.label(class='form-label') }}
+        {{ form.address(class='form-control', rows=3, placeholder='Your address') }}
+      </div>
+
+      {{ form.submit(class='btn btn-primary') }}
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:14px;">Academic Details</div>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--gray-100);">
+        <span style="color:var(--gray-400); font-size:13px;">USN</span>
+        <strong>{{ student.usn }}</strong>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--gray-100);">
+        <span style="color:var(--gray-400); font-size:13px;">Department</span>
+        <strong>{{ student.department.name if student.department else '—' }}</strong>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--gray-100);">
+        <span style="color:var(--gray-400); font-size:13px;">Current Semester</span>
+        <strong>Semester {{ student.current_sem }}</strong>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:10px 0;">
+        <span style="color:var(--gray-400); font-size:13px;">Batch Year</span>
+        <strong>{{ student.batch_year or '—' }}</strong>
+      </div>
+    </div>
+    <div style="margin-top:16px; background:var(--blue-50); border-radius:8px; padding:12px; font-size:12.5px; color:var(--blue-700);">
+      ℹ️ Academic details (USN, department, semester) can only be changed by your teacher or admin.
+    </div>
+  </div>
+</div>
+{% endblock %}

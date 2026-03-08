@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% block title %}Send Notification{% endblock %}
+{% block page_title %}Admin Notifications{% endblock %}
+
+{% block content %}
+<div class="page-header"><h2>📢 Send Notification / Notice</h2></div>
+
+<div style="display:grid; grid-template-columns:1fr 420px; gap:24px; align-items:start;">
+
+  <!-- COMPOSE PANEL -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:18px;">Compose Notification</div>
+    <form method="POST" id="notifForm">
+      {{ form.hidden_tag() }}
+
+      <!-- ── AUDIENCE QUICK BUTTONS ── -->
+      <div class="form-group">
+        <label class="form-label">Quick Audience</label>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+          <button type="button" class="audience-btn active" data-role="all" data-scope="all"
+                  onclick="setAudience('all','all',this)">
+            🌐 Everyone
+          </button>
+          <button type="button" class="audience-btn" data-role="teacher" data-scope="all"
+                  onclick="setAudience('teacher','all',this)">
+            👩‍🏫 All Teachers
+          </button>
+          <button type="button" class="audience-btn" data-role="student" data-scope="all"
+                  onclick="setAudience('student','all',this)">
+            🎓 All Students
+          </button>
+          <button type="button" class="audience-btn" data-role="teacher" data-scope="specific"
+                  onclick="setAudience('teacher','specific',this)">
+            👩‍🏫 Teachers of Branch…
+          </button>
+          <button type="button" class="audience-btn" data-role="student" data-scope="specific"
+                  onclick="setAudience('student','specific',this)">
+            🎓 Students of Branch…
+          </button>
+          <button type="button" class="audience-btn" data-role="all" data-scope="specific"
+                  onclick="setAudience('all','specific',this)">
+            🏛️ Everyone in Branch…
+          </button>
+        </div>
+        <!-- Hidden inputs the form actually submits -->
+        <input type="hidden" name="target_role"  id="hiddenRole"  value="all">
+        <input type="hidden" name="dept_scope"   id="hiddenScope" value="all">
+      </div>
+
+      <!-- ── BRANCH CHECKBOXES (shown only when scope=specific) ── -->
+      <div id="branchSelector" style="display:none; margin-bottom:16px;">
+        <label class="form-label">Select Branch(es)</label>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; background:var(--blue-50); border-radius:8px; padding:12px;">
+          {% for d in depts %}
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;
+                        background:var(--white); border:1.5px solid var(--blue-200); border-radius:20px; padding:5px 12px;">
+            <input type="checkbox" name="department_ids" value="{{ d.id }}"
+                   class="dept-check" style="accent-color:var(--blue-600);">
+            <span>{{ d.code }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        <div style="margin-top:6px; display:flex; gap:8px;">
+          <button type="button" class="btn btn-outline btn-sm" onclick="selectAllDepts(true)">Select All</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="selectAllDepts(false)">Clear</button>
+        </div>
+      </div>
+
+      <!-- ── CONTENT ── -->
+      <div class="form-group">
+        <label class="form-label">Title</label>
+        {{ form.title(class='form-control', placeholder='Notification title') }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message</label>
+        {{ form.content(class='form-control', rows=5, placeholder='Write your notification here…') }}
+      </div>
+      <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+        {{ form.is_pinned() }}
+        <label for="{{ form.is_pinned.id }}" style="font-size:13px; cursor:pointer; margin:0;">
+          📌 Pin this notification to the top of the notice board
+        </label>
+      </div>
+
+      <!-- Preview badge -->
+      <div id="audiencePreview" style="background:var(--blue-50); border-radius:8px; padding:10px 14px; margin-bottom:16px; font-size:13px; color:var(--blue-700);">
+        📣 Will be sent to: <strong id="previewText">Everyone</strong>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="padding:10px 28px;">📤 Send Notification</button>
+    </form>
+  </div>
+
+  <!-- RECENT PANEL -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:14px;">Recently Sent</div>
+    {% if recent %}
+      {% for n in recent %}
+      <div class="notice-card {% if n.is_pinned %}pinned{% endif %}" style="margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div style="flex:1;">
+            <div class="notice-title" style="font-size:14px;">{{ n.title }}</div>
+            <div class="notice-meta">
+              {{ n.created_at.strftime('%d %b %Y, %H:%M') }} ·
+              <span class="badge badge-blue" style="font-size:10px;">{{ n.target_role }}</span>
+              {% set dept_names = n.target_departments.all() %}
+              {% if dept_names %}
+                {% for d in dept_names %}
+                <span class="badge badge-green" style="font-size:10px;">{{ d.code }}</span>
+                {% endfor %}
+              {% else %}
+                <span style="font-size:10px; color:var(--gray-400);">All depts</span>
+              {% endif %}
+            </div>
+          </div>
+          <div style="display:flex; gap:4px; flex-shrink:0; margin-left:8px;">
+            <a href="{{ url_for('notices.edit_notice', notice_id=n.id) }}" class="btn btn-outline btn-sm">✏️</a>
+            <form method="POST" action="{{ url_for('notices.delete_notice', notice_id=n.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-danger btn-sm" data-confirm="Delete this notice?">🗑</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p style="color:var(--gray-400); font-size:13px;">No notifications sent yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+.audience-btn {
+  padding: 7px 14px; border-radius: 22px;
+  border: 2px solid var(--blue-300); color: var(--blue-700);
+  background: var(--white); cursor: pointer; font-size: 12.5px; font-weight: 600;
+  transition: all .15s;
+}
+.audience-btn:hover  { background: var(--blue-50); }
+.audience-btn.active { background: var(--blue-600); color: var(--white); border-color: var(--blue-600); }
+</style>
+
+<script>
+const deptNames = {
+  {% for d in depts %}"{{ d.id }}": "{{ d.code }}"{% if not loop.last %},{% endif %}{% endfor %}
+};
+
+function setAudience(role, scope, btn) {
+  document.querySelectorAll('.audience-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('hiddenRole').value  = role;
+  document.getElementById('hiddenScope').value = scope;
+  const branchDiv = document.getElementById('branchSelector');
+  branchDiv.style.display = scope === 'specific' ? 'block' : 'none';
+  updatePreview(role, scope);
+}
+
+function updatePreview(role, scope) {
+  let text = '';
+  if (role === 'all')     text = 'Everyone';
+  if (role === 'teacher') text = 'All Teachers';
+  if (role === 'student') text = 'All Students';
+
+  if (scope === 'specific') {
+    const checked = [...document.querySelectorAll('.dept-check:checked')].map(c => deptNames[c.value]);
+    const branches = checked.length ? checked.join(', ') : '(no branches selected)';
+    text += ' in ' + branches;
+  }
+  document.getElementById('previewText').textContent = text;
+}
+
+function selectAllDepts(select) {
+  document.querySelectorAll('.dept-check').forEach(c => c.checked = select);
+  const scope = document.getElementById('hiddenScope').value;
+  const role  = document.getElementById('hiddenRole').value;
+  updatePreview(role, scope);
+}
+
+// Update preview when checkboxes change
+document.querySelectorAll('.dept-check').forEach(c => {
+  c.addEventListener('change', () => {
+    updatePreview(document.getElementById('hiddenRole').value,
+                  document.getElementById('hiddenScope').value);
+  });
+});
+</script>
+{% endblock %}

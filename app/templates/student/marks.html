@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}My Marks{% endblock %}
+{% block page_title %}My Marks{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>📊 My Marks</h2>
+</div>
+
+<!-- Semester Ribbon -->
+<div class="sem-ribbon">
+  {% for s in semesters %}
+  <a href="{{ url_for('student.marks', sem=s) }}"
+     class="sem-btn {% if s == active_sem %}active{% endif %}">Sem {{ s }}</a>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Semester {{ active_sem }} Marks</span>
+  </div>
+  {% if marks %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Subject Code</th>
+          <th>Subject Name</th>
+          <th>Exam Type</th>
+          <th>Obtained</th>
+          <th>Max</th>
+          <th>%</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in marks %}
+        <tr>
+          <td>{{ m.subject.code }}</td>
+          <td>{{ m.subject.name }}</td>
+          <td><span class="badge badge-blue">{{ m.exam_type | title }}</span></td>
+          <td><strong>{{ m.marks_obtained }}</strong></td>
+          <td>{{ m.max_marks }}</td>
+          <td>
+            {% set pct = (m.marks_obtained / m.max_marks * 100) | round(1) %}
+            <span class="badge {% if pct >= 75 %}badge-green{% elif pct >= 50 %}badge-blue{% else %}badge-red{% endif %}">
+              {{ pct }}%
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p style="color:var(--gray-400); padding:20px 0; text-align:center;">No marks recorded for Semester {{ active_sem }} yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

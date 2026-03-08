@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Browse Marks{% endblock %}
+{% block page_title %}Browse Marks{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>📊 Marks
+    {% if viewing_dept %}<span class="badge badge-blue">{{ viewing_dept.name }}</span>{% endif %}
+  </h2>
+</div>
+
+{% include 'shared/branch_switcher.html' %}
+
+<div class="sem-ribbon">
+  {% for s in semesters %}
+  <a href="{{ url_for('admin.marks', sem=s) }}"
+     class="sem-btn {% if s == active_sem %}active{% endif %}">Sem {{ s }}</a>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Semester {{ active_sem }} Marks
+      {% if viewing_dept %}— {{ viewing_dept.name }}{% endif %}
+    </span>
+    <span class="badge badge-blue">{{ marks_data | length }} entries</span>
+  </div>
+  {% if marks_data %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>USN</th>
+          <th>Student</th>
+          <th>Subject</th>
+          <th>Exam Type</th>
+          <th>Obtained</th>
+          <th>Max</th>
+          <th>%</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in marks_data %}
+        <tr>
+          <td>{{ m.student.usn }}</td>
+          <td>{{ m.student.user.name }}</td>
+          <td>{{ m.subject.code }}</td>
+          <td><span class="badge badge-blue">{{ m.exam_type | replace('_',' ') | title }}</span></td>
+          <td>{{ m.marks_obtained }}</td>
+          <td>{{ m.max_marks }}</td>
+          <td>
+            {% if m.max_marks %}
+            {% set pct = (m.marks_obtained / m.max_marks * 100) | round(1) %}
+            <span class="badge {% if pct >= 75 %}badge-green{% elif pct >= 50 %}badge-blue{% else %}badge-red{% endif %}">
+              {{ pct }}%
+            </span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p style="text-align:center; color:var(--gray-400); padding:30px;">
+    No marks recorded for Sem {{ active_sem }}
+    {% if viewing_dept %}in {{ viewing_dept.name }}{% endif %}.
+  </p>
+  {% endif %}
+</div>
+{% endblock %}

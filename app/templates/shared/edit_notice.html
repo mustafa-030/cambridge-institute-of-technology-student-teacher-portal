@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Edit Notice{% endblock %}
+{% block page_title %}Edit Notice{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>✏️ Edit Notice</h2>
+  <a href="{{ url_for('notices.index') }}" class="btn btn-outline">← Back</a>
+</div>
+
+<div class="card" style="max-width:620px;">
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      {{ form.title(class='form-control') }}
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Send To</label>
+      {{ form.target_role(class='form-control') }}
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Department Scope</label>
+      <select name="dept_scope" id="deptScopeSelect" class="form-control" onchange="toggleDepts()">
+        <option value="all"      {% if form.dept_scope.data != 'specific' %}selected{% endif %}>All Departments</option>
+        <option value="specific" {% if form.dept_scope.data == 'specific' %}selected{% endif %}>Specific Department(s)</option>
+      </select>
+    </div>
+
+    <div id="deptCheckboxes" style="display:{% if form.dept_scope.data == 'specific' %}block{% else %}none{% endif %}; margin-bottom:16px;">
+      <label class="form-label">Select Departments</label>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; background:var(--blue-50); border-radius:8px; padding:12px;">
+        {% for d in depts %}
+        <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;
+                      background:var(--white); border:1.5px solid var(--blue-200); border-radius:20px; padding:5px 12px;">
+          <input type="checkbox" name="department_ids" value="{{ d.id }}"
+                 {% if d.id in form.department_ids.data %}checked{% endif %}
+                 style="accent-color:var(--blue-600);">
+          <span>{{ d.code }} – {{ d.name }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Content</label>
+      {{ form.content(class='form-control', rows=6) }}
+    </div>
+
+    <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+      {{ form.is_pinned() }}
+      <label for="{{ form.is_pinned.id }}" style="font-size:13px; cursor:pointer; margin:0;">📌 Pin this notice</label>
+    </div>
+
+    {{ form.submit(class='btn btn-primary') }}
+    <a href="{{ url_for('notices.view_notice', notice_id=notice.id) }}" class="btn btn-outline" style="margin-left:8px;">Cancel</a>
+  </form>
+</div>
+<script>
+function toggleDepts() {
+  const scope = document.getElementById('deptScopeSelect').value;
+  document.getElementById('deptCheckboxes').style.display = scope === 'specific' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

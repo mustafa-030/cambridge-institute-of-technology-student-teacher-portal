@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Assignments{% endblock %}
+{% block page_title %}Assignments{% endblock %}
+{% block content %}
+<div class="page-header"><h2>📝 Assignments — Sem {{ student.current_sem }}</h2></div>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Title</th><th>Subject</th><th>Due Date</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for a in assignments %}
+        <tr>
+          <td><strong>{{ a.title }}</strong></td>
+          <td>{{ a.subject.code }}</td>
+          <td>{{ a.due_date.strftime('%d %b %Y') if a.due_date else '—' }}</td>
+          <td>
+            {% if a.id in submitted_ids %}
+              <span class="badge badge-green">Submitted</span>
+            {% else %}
+              <span class="badge badge-yellow">Pending</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{{ url_for('student.submit_assignment', assignment_id=a.id) }}"
+               class="btn btn-outline btn-sm">
+              {% if a.id in submitted_ids %}View / Edit{% else %}Submit{% endif %}
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="text-align:center; color:var(--gray-400); padding:30px;">No assignments posted yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

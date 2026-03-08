@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}ABC College Portal{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+</head>
+<body>
+
+{% if current_user.is_authenticated %}
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <span class="brand-icon">🎓</span>
+    <span class="brand-text">ABC College</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <!-- Common -->
+    <a href="{{ url_for('auth.dashboard') }}" class="nav-item {% if request.endpoint and 'dashboard' in request.endpoint %}active{% endif %}">
+      <span class="nav-icon">⊞</span> Dashboard
+    </a>
+    <a href="{{ url_for('notices.index') }}" class="nav-item {% if request.blueprint == 'notices' %}active{% endif %}">
+      <span class="nav-icon">📋</span> Notice Board
+    </a>
+
+    {% if current_user.role == 'student' %}
+    <div class="nav-section-label">Academics</div>
+    <a href="{{ url_for('student.marks') }}" class="nav-item {% if request.endpoint == 'student.marks' %}active{% endif %}">
+      <span class="nav-icon">📊</span> My Marks
+    </a>
+    <a href="{{ url_for('student.attendance') }}" class="nav-item {% if request.endpoint == 'student.attendance' %}active{% endif %}">
+      <span class="nav-icon">📅</span> Attendance
+    </a>
+    <a href="{{ url_for('student.assignments') }}" class="nav-item {% if request.endpoint == 'student.assignments' %}active{% endif %}">
+      <span class="nav-icon">📝</span> Assignments
+    </a>
+    <div class="nav-section-label">Registration</div>
+    <a href="{{ url_for('student.course_registration') }}" class="nav-item {% if request.endpoint == 'student.course_registration' %}active{% endif %}">
+      <span class="nav-icon">📚</span> Course Reg.
+    </a>
+    <a href="{{ url_for('student.exam_registration') }}" class="nav-item {% if request.endpoint == 'student.exam_registration' %}active{% endif %}">
+      <span class="nav-icon">✏️</span> Exam Reg.
+    </a>
+    <a href="{{ url_for('student.fee_payment') }}" class="nav-item {% if request.endpoint == 'student.fee_payment' %}active{% endif %}">
+      <span class="nav-icon">💳</span> Fee Payment
+    </a>
+    <div class="nav-section-label">Portfolio</div>
+    <a href="{{ url_for('student.projects') }}" class="nav-item {% if request.endpoint == 'student.projects' %}active{% endif %}">
+      <span class="nav-icon">🚀</span> Projects / Internships
+    </a>
+
+    {% elif current_user.role in ['teacher', 'hod'] %}
+    <div class="nav-section-label">Teaching</div>
+    <a href="{{ url_for('teacher.marks') }}" class="nav-item {% if request.endpoint and 'marks' in request.endpoint %}active{% endif %}">
+      <span class="nav-icon">📊</span> Marks
+    </a>
+    <a href="{{ url_for('teacher.attendance') }}" class="nav-item {% if request.endpoint and 'attendance' in request.endpoint %}active{% endif %}">
+      <span class="nav-icon">📅</span> Attendance
+    </a>
+    <a href="{{ url_for('teacher.assignments') }}" class="nav-item {% if request.endpoint and 'assignment' in request.endpoint %}active{% endif %}">
+      <span class="nav-icon">📝</span> Assignments
+    </a>
+    <a href="{{ url_for('notices.post_notice') }}" class="nav-item">
+      <span class="nav-icon">📢</span> Post Notice
+    </a>
+
+    {% if current_user.role == 'hod' %}
+    <div class="nav-section-label">HOD Panel</div>
+    <a href="{{ url_for('hod.dashboard') }}" class="nav-item {% if request.blueprint == 'hod' %}active{% endif %}">
+      <span class="nav-icon">🏛️</span> HOD Dashboard
+    </a>
+    <a href="{{ url_for('hod.teachers') }}" class="nav-item {% if request.endpoint == 'hod.teachers' %}active{% endif %}">
+      <span class="nav-icon">👩‍🏫</span> Teacher Roster
+    </a>
+    <a href="{{ url_for('hod.subject_assignments') }}" class="nav-item {% if request.endpoint == 'hod.subject_assignments' %}active{% endif %}">
+      <span class="nav-icon">🔗</span> Subject Assignments
+    </a>
+    <a href="{{ url_for('hod.subjects') }}" class="nav-item {% if request.endpoint in ['hod.subjects','hod.edit_subject'] %}active{% endif %}">
+      <span class="nav-icon">📖</span> Manage Subjects
+    </a>
+    {% endif %}
+
+    {% elif current_user.role == 'admin' %}
+    <div class="nav-section-label">Admin</div>
+    <a href="{{ url_for('admin.users') }}" class="nav-item {% if request.endpoint and 'user' in request.endpoint %}active{% endif %}">
+      <span class="nav-icon">👥</span> Users
+    </a>
+    <a href="{{ url_for('admin.departments') }}" class="nav-item {% if request.endpoint == 'admin.departments' %}active{% endif %}">
+      <span class="nav-icon">🏫</span> Departments
+    </a>
+    <a href="{{ url_for('admin.subjects') }}" class="nav-item {% if request.endpoint and 'subject' in request.endpoint %}active{% endif %}">
+      <span class="nav-icon">📖</span> Subjects
+    </a>
+    <a href="{{ url_for('admin.marks') }}" class="nav-item {% if request.endpoint == 'admin.marks' %}active{% endif %}">
+      <span class="nav-icon">📊</span> Browse Marks
+    </a>
+    <a href="{{ url_for('admin.notifications') }}" class="nav-item {% if request.endpoint == 'admin.notifications' %}active{% endif %}">
+      <span class="nav-icon">📢</span> Notifications
+    </a>
+    <a href="{{ url_for('notices.index') }}" class="nav-item {% if request.blueprint == 'notices' %}active{% endif %}">
+      <span class="nav-icon">📋</span> Notice Board
+    </a>
+    {% endif %}
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="{{ url_for('auth.logout') }}" class="btn-logout">⏻ Logout</a>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main-wrap">
+  <header class="topbar">
+    <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">☰</button>
+    <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
+    <div class="topbar-user">
+      <span class="user-role-badge role-{{ current_user.role }}">{{ current_user.role | upper }}</span>
+      <span class="user-name">{{ current_user.name }}</span>
+    </div>
+  </header>
+
+  <main class="content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+{% else %}
+<main class="auth-wrap">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% block auth_content %}{% endblock %}
+</main>
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

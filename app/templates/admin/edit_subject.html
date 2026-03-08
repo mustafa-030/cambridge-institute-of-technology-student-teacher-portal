@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Edit Subject{% endblock %}
+{% block page_title %}Edit Subject{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2>✏️ Edit Subject: {{ subject.code }}</h2>
+  <a href="{{ url_for('admin.subjects') }}" class="btn btn-outline">← Back</a>
+</div>
+<div class="card" style="max-width:440px;">
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    {% for field in form if field.widget.input_type != 'hidden' and field.name != 'submit' %}
+    <div class="form-group">
+      {{ field.label(class='form-label') }}
+      {{ field(class='form-control') }}
+    </div>
+    {% endfor %}
+    {{ form.submit(class='btn btn-primary') }}
+    <a href="{{ url_for('admin.subjects') }}" class="btn btn-outline" style="margin-left:8px;">Cancel</a>
+  </form>
+</div>
+{% endblock %}
